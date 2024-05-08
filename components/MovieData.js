@@ -10,7 +10,7 @@ function MovieData() {
             renderItem={({item}) => {
                 return (
                     <View>
-                        <Text>{item.id}: {item.name}</Text>
+                        <Text>{item.id}{item.name}{'\n'}</Text>
                     </View>
                 )
             }}
