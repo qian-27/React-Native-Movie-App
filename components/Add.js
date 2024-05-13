@@ -19,8 +19,8 @@ function Add() {
     const [newMovie, setNewMovie] = useState({
         id: '', // bar code
         name: '', // movie name
-        type: '', // DVD, Blu-ray, or 4K
-        movieStatus: '', // borrow to others, at home, or lost
+        type: null, // DVD, Blu-ray, or 4K
+        movieStatus: null, // borrow to others, at home, or lost
     });
     const [newMovies, setNewMovies] = useState([]);
 
@@ -70,7 +70,7 @@ function Add() {
             }, null, updateList);
             alert(`Movie Added: ${newMovie.name}`);
             // Clear the id and name fields after adding a new movie
-            setNewMovie({ id: '', name: '', type: '', movieStatus: '' });
+            setNewMovie({ id: '', name: '', type: null, movieStatus: null });
         } else {
             Alert.alert('Error', 'Please enter a valid ID and name');
         }
@@ -99,24 +99,26 @@ function Add() {
                     value={newMovie.name}
                 />
                 <RNPickerSelect
-                    onValueChange={(type) => setNewMovie(prevState => ({ ...prevState, type }))}
+                    value={newMovie.type}
+                    onValueChange={(value) => setNewMovie(prevState => ({ ...prevState, type: value }))}
                     items={[
                         { label: 'DVD', value: 'DVD' },
                         { label: 'Blu-ray', value: 'Blu-ray' },
                         { label: '4K', value: '4K' },
                     ]}
-                    style={pickerSelectStyles}
                     placeholder={{ label: "Select a type", value: null }}
+                    style={pickerSelectStyles}
                 />
                 <RNPickerSelect
-                    onValueChange={(movieStatus) => setNewMovie(prevState => ({ ...prevState, movieStatus }))}
+                    value={newMovie.movieStatus}
+                    onValueChange={(value) => setNewMovie(prevState => ({ ...prevState, movieStatus: value }))}
                     items={[
                         { label: 'Borrow to others', value: 'borrow' },
                         { label: 'At home', value: 'home' },
                         { label: 'Lost', value: 'lost' },
                     ]}
-                    style={pickerSelectStyles}
                     placeholder={{ label: "Select status", value: null }}
+                    style={pickerSelectStyles}
                 />
 
                 <Button 
