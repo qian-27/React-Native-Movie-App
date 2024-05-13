@@ -2,12 +2,14 @@ import React from 'react';
 // import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import Add from './Add';
+// import MovieList from './MovieList';
 
 function HomeScreen() {
     return (
         <View>
             <Text>Home</Text>
             <Add />
+            {/* <MovieList /> */}
         </View>
     )
 }

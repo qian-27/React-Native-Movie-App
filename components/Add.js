@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, FlatList, StyleSheet, TextInput, View, Text, Alert } from 'react-native'; 
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite/legacy';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { requestPermissionsAsync } from 'expo-barcode-scanner';
 
@@ -43,6 +43,14 @@ function Add() {
         }, (error) => console.error("Error when creating Database: ", error), updateList);
     }, []);
 
+    const updateList = () => {
+        db.transaction(tx => {
+            tx.executeSql('select * from movies;', [], (_, { rows }) =>
+                setNewMovies(rows._array)
+            );
+        });
+    };
+
     const addMovie = () => {
         if (newMovie.id && newMovie.name) {
             db.transaction(tx => {
@@ -62,13 +70,6 @@ function Add() {
     };
     
 
-    const updateList = () => {
-        db.transaction(tx => {
-            tx.executeSql('select * from movies;', [], (_, { rows }) =>
-                setNewMovies(rows._array)
-            );
-        });
-    };
 
     const deleteMovie = (id) => {
         db.transaction(tx => {
@@ -109,7 +110,7 @@ function Add() {
                         />
                     )}
 
-                    <Button title="Add Movie" onPress={() => console.log('Add movie code')} />
+                    <Button title="Add Movie" onPress={addMovie} />
 
             <FlatList
                 data={newMovies}
@@ -124,6 +125,7 @@ function Add() {
         </View>
     );
 }
+
 const styles = StyleSheet.create({
     listcontainer: {
      flexDirection: 'row',
