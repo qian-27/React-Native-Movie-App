@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, FlatList, StyleSheet, TextInput, View, Text, Alert } from 'react-native'; 
+import { Button, FlatList, StyleSheet, TextInput, View, Text, Alert, ScrollView } from 'react-native'; 
 import * as SQLite from 'expo-sqlite/legacy';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { requestPermissionsAsync } from 'expo-barcode-scanner';
@@ -19,13 +19,12 @@ function Add() {
     const [hasPermission, setHasPermission] = useState(null);
     const [showScanner, setShowScanner] = useState(false);
 
-    const handleScannedData = ({ type, data }) => {
+    const handleScannedData = ({ data }) => {
         setShowScanner(false);
         setNewMovie(prevState => ({ ...prevState, id: data }));
-        Alert.alert("Barcode Scanned", `Type: ${type}, Data: ${data}`);
+        Alert.alert("Barcode Scanned", `Data: ${data}`);
     };
 
-    
     useEffect(() => {
         // get permission to use the camera
         (async () => {
@@ -68,8 +67,6 @@ function Add() {
             Alert.alert('Error', 'Please enter a valid ID and name');
         }
     };
-    
-
 
     const deleteMovie = (id) => {
         db.transaction(tx => {
@@ -77,61 +74,84 @@ function Add() {
         }, (error) => console.error("Error when deleting: ", error), updateList);
     };
 
-
     return (
-        <View style={styles.textStyle}>
-                    <TextInput
-                        placeholder="ID"
-                        onChangeText={(id) => setNewMovie(prevState => ({ ...prevState, id }))}
-                        value={newMovie.id}
-                        keyboardType='numeric'
+        <ScrollView>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="ID"
+                    onChangeText={(id) => setNewMovie(prevState => ({ ...prevState, id }))}
+                    value={newMovie.id}
+                    keyboardType='numeric'
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Movie Name"
+                    onChangeText={(name) => setNewMovie(prevState => ({ ...prevState, name }))}
+                    value={newMovie.name}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Type"
+                    onChangeText={(type) => setNewMovie(prevState => ({ ...prevState, type }))}
+                    value={newMovie.type}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Status"
+                    onChangeText={(movieStatus) => setNewMovie(prevState => ({ ...prevState, movieStatus }))}
+                    value={newMovie.movieStatus}
+                />
+                <Button title="Scan Barcode" onPress={() => setShowScanner(true)} />
+                {showScanner && hasPermission && (
+                    <BarCodeScanner
+                        onBarCodeScanned={handleScannedData}
+                        style={StyleSheet.absoluteFillObject}
                     />
-                    <TextInput
-                        placeholder="Movie Name"
-                        onChangeText={(name) => setNewMovie(prevState => ({ ...prevState, name }))}
-                        value={newMovie.name}
-                    />
-                    <TextInput
-                        placeholder="Type"
-                        onChangeText={(type) => setNewMovie(prevState => ({ ...prevState, type }))}
-                        value={newMovie.type}
-                    />
-                    <TextInput
-                        placeholder="Status"
-                        onChangeText={(movieStatus) => setNewMovie(prevState => ({ ...prevState, movieStatus }))}
-                        value={newMovie.movieStatus}
-                    />
-
-                    <Button title="Scan Barcode" onPress={() => setShowScanner(true)} />
-                    {showScanner && hasPermission && (
-                        <BarCodeScanner
-                            onBarCodeScanned={handleScannedData}
-                            style={StyleSheet.absoluteFillObject}
-                        />
-                    )}
-
-                    <Button title="Add Movie" onPress={addMovie} />
-
+                )}
+                <Button title="Add Movie" onPress={addMovie} />
+            </View>
             <FlatList
+                style={styles.listContainer}
                 data={newMovies}
                 keyExtractor={item => item.id.toString()}
-                renderItem={({item}) => 
-                    <View style={styles.listcontainer}>
+                renderItem={({item}) => (
+                    <View style={styles.listItem}>
                         <Text>{item.name}{'\n'}{item.type}{'\n'}{item.movieStatus}{'\n'}{item.id}{'\n'}</Text>
                         <Text onPress={() => deleteMovie(item.id)}>Delete</Text>
                     </View>
-                }
+                )}
             />
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    listcontainer: {
-     flexDirection: 'row',
-     backgroundColor: '#fff',
-     alignItems: 'center'
+    inputContainer: {
+        flex: 2, // Takes 2/3 of the space
+        backgroundColor: '#FFFAE6', 
+        padding: 40, 
     },
-   });
+    listContainer: {
+        flex: 1, // Takes 1/3 of the space
+        backgroundColor: '#FF9F66', 
+        padding: 40, 
+    },
+    input: {
+        height: 50, 
+        borderColor: '#FF5F00', 
+        borderWidth: 1, 
+        marginBottom: 10, 
+        paddingHorizontal: 10, 
+    },
+    listItem: {
+        flexDirection: 'row',
+        backgroundColor: '#FF9F66', 
+        alignItems: 'center',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#FFFAE6',
+    },
+});
 
 export default Add;
