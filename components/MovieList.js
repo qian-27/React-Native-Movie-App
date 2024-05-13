@@ -1,3 +1,6 @@
+// I tried to make a seperate component for the list of movies, but it did not work.
+// Indtead, I wrote all the code in the App.js file.
+
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Button } from 'react-native';
 import * as SQLite from 'expo-sqlite/legacy';

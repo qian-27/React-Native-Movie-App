@@ -1,3 +1,8 @@
+// This is the Scanner component that is used to scan the barcode. 
+// It is working.
+// But I can not use it in the Add.js as I expected.
+// Somehow the barcode scanner component can not show the camera view in the Add.js.
+
 // https://docs.expo.dev/versions/latest/sdk/bar-code-scanner/
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';

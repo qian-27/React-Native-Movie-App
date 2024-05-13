@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Button, FlatList, StyleSheet, TextInput, View, Text, Alert, ScrollView } from 'react-native'; 
+import { FlatList, StyleSheet, TextInput, View, Text, Alert, ScrollView } from 'react-native'; 
+
 import * as SQLite from 'expo-sqlite/legacy';
+
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { requestPermissionsAsync } from 'expo-barcode-scanner';
 
-// sqlite database
+import { Button, Icon, Card } from '@rneui/themed';
+
+// https://github.com/lawnstarter/react-native-picker-select
+// https://snack.expo.dev/@lfkwtz/react-native-picker-select
+import RNPickerSelect from 'react-native-picker-select';
+
+// SQLite database
 const db = SQLite.openDatabase('movies.db');
 
 function Add() {
@@ -79,7 +87,7 @@ function Add() {
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
-                    placeholder="ID"
+                    placeholder="Barcode"
                     onChangeText={(id) => setNewMovie(prevState => ({ ...prevState, id }))}
                     value={newMovie.id}
                     keyboardType='numeric'
@@ -90,36 +98,69 @@ function Add() {
                     onChangeText={(name) => setNewMovie(prevState => ({ ...prevState, name }))}
                     value={newMovie.name}
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Type"
-                    onChangeText={(type) => setNewMovie(prevState => ({ ...prevState, type }))}
-                    value={newMovie.type}
+                <RNPickerSelect
+                    onValueChange={(type) => setNewMovie(prevState => ({ ...prevState, type }))}
+                    items={[
+                        { label: 'DVD', value: 'DVD' },
+                        { label: 'Blu-ray', value: 'Blu-ray' },
+                        { label: '4K', value: '4K' },
+                    ]}
+                    style={pickerSelectStyles}
+                    placeholder={{ label: "Select a type", value: null }}
                 />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Status"
-                    onChangeText={(movieStatus) => setNewMovie(prevState => ({ ...prevState, movieStatus }))}
-                    value={newMovie.movieStatus}
+                <RNPickerSelect
+                    onValueChange={(movieStatus) => setNewMovie(prevState => ({ ...prevState, movieStatus }))}
+                    items={[
+                        { label: 'Borrow to others', value: 'borrow' },
+                        { label: 'At home', value: 'home' },
+                        { label: 'Lost', value: 'lost' },
+                    ]}
+                    style={pickerSelectStyles}
+                    placeholder={{ label: "Select status", value: null }}
                 />
-                <Button title="Scan Barcode" onPress={() => setShowScanner(true)} />
+
+                <Button 
+                    title="Scan Barcode" 
+                    onPress={() => setShowScanner(true)} 
+                    buttonStyle={{ backgroundColor: '#FF5F00' }}
+                />
                 {showScanner && hasPermission && (
                     <BarCodeScanner
                         onBarCodeScanned={handleScannedData}
                         style={StyleSheet.absoluteFillObject}
                     />
                 )}
-                <Button title="Add Movie" onPress={addMovie} />
+
+                <Button 
+                    onPress={addMovie}
+                    radius={"sm"} type="solid" 
+                >
+                Save
+                    <Icon name="save" color="white" />
+                </Button>
             </View>
             <FlatList
-                style={styles.listContainer}
                 data={newMovies}
                 keyExtractor={item => item.id.toString()}
                 renderItem={({item}) => (
-                    <View style={styles.listItem}>
-                        <Text>{item.name}{'\n'}{item.type}{'\n'}{item.movieStatus}{'\n'}{item.id}{'\n'}</Text>
-                        <Text onPress={() => deleteMovie(item.id)}>Delete</Text>
-                    </View>
+                    <Card>
+                        <Card.Title>{item.name}</Card.Title>
+                        <Card.Divider/>
+                        <View style={{position:"relative",alignItems:"center",}}>
+                            <Text>
+                                {item.type}{'\n'}
+                                {item.movieStatus}{'\n'}
+                                {item.id}
+                            </Text>
+                        </View>
+                        <Button 
+                                title="Delete" 
+                                onPress={() => deleteMovie(item.id)}
+                                type="clear"
+                                size="sm"
+                                color="warning"
+                        />
+                    </Card>
                 )}
             />
         </ScrollView>
@@ -132,11 +173,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFAE6', 
         padding: 40, 
     },
-    listContainer: {
-        flex: 1, // Takes 1/3 of the space
-        backgroundColor: '#FF9F66', 
-        padding: 40, 
-    },
     input: {
         height: 50, 
         borderColor: '#FF5F00', 
@@ -144,13 +180,36 @@ const styles = StyleSheet.create({
         marginBottom: 10, 
         paddingHorizontal: 10, 
     },
-    listItem: {
-        flexDirection: 'row',
-        backgroundColor: '#FF9F66', 
-        alignItems: 'center',
-        padding: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#FFFAE6',
+    // listContainer: {
+    //     flex: 1, // Takes 1/3 of the space
+    //     backgroundColor: '#FF9F66', 
+    //     padding: 40, 
+    // },
+
+    // listItem: {
+    //     flexDirection: 'row',
+    //     backgroundColor: '#FF9F66', 
+    //     alignItems: 'center',
+    //     padding: 20,
+    //     borderBottomWidth: 1,
+    //     borderBottomColor: '#FFFAE6',
+    // },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+    inputIOS: {
+        height: 50, 
+        borderColor: '#FF5F00', 
+        borderWidth: 1, 
+        marginBottom: 10, 
+        paddingHorizontal: 10, 
+    },
+    inputAndroid: {
+        height: 50, 
+        borderColor: '#FF5F00', 
+        borderWidth: 1, 
+        marginBottom: 10, 
+        paddingHorizontal: 10, 
     },
 });
 
